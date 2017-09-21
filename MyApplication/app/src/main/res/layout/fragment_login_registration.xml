@@ -76,7 +76,7 @@
 
             <LinearLayout
                 android:id="@+id/linear_login"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:paddingTop="32dp"
@@ -120,7 +120,7 @@
 
             <LinearLayout
                 android:id="@+id/linear_registration"
-                android:visibility="visible"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:paddingTop="8dp"
