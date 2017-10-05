@@ -1,8 +1,12 @@
 package com.abhijeetmalamkar.pegasus;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -19,7 +23,8 @@ import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity implements LoginRegistrationFragment.GetLoginRegistation,
-        DocumentsManagerFragment.AddDocument,TripListFragment.GetUser,TripDetailsFragment.CloseFragment {
+        DocumentsManagerFragment.AddDocument, TripListFragment.GetUser, TripDetailsFragment.CloseFragment, DatePickerFragment.Close {
+
     public static final String PREF_USER_FIRST_TIME = "user_first_time";
     ArrayList<View> buttons;
     View mainLayout;
@@ -44,9 +49,9 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
 
         user = loadUser(CURRENT_USER);
 
-        if(user != null) {
-            Toast.makeText(MainActivity.this,user.getEmail()+" LoggedIn", Toast.LENGTH_SHORT).show();
-            if(!user.getLoggedIn()) {
+        if (user != null) {
+            Toast.makeText(MainActivity.this, user.getEmail() + " LoggedIn", Toast.LENGTH_SHORT).show();
+            if (!user.getLoggedIn()) {
                 presentLoginScreen();
             }
         } else {
@@ -57,20 +62,20 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.logout,menu);
+        getMenuInflater().inflate(R.menu.logout, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.btn_logout) {
-            if(user!=null){
+        if (item.getItemId() == R.id.btn_logout) {
+            if (user != null) {
                 user.setLoggedIn(false);
-                saveUser(user,user.getEmail());
+                saveUser(user, user.getEmail());
                 User _user = new User();
                 _user.setEmail(NONE);
                 _user.setLoggedIn(false);
-                saveUser(_user,CURRENT_USER);
+                saveUser(_user, CURRENT_USER);
             }
             presentLoginScreen();
         }
@@ -78,7 +83,8 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
     }
 
     LoginRegistrationFragment loginRegistrationFragment;
-    private void presentLoginScreen(){
+
+    private void presentLoginScreen() {
         loginRegistrationFragment = LoginRegistrationFragment.newInstance();
         getFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, loginRegistrationFragment)
@@ -97,34 +103,51 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
                     getFragmentManager().beginTransaction()
                             .add(R.id.fragment_container, TripListFragment.newInstance())
                             .addToBackStack(TripListFragment.Tag).addToBackStack("trip").commit();
-                    mainLayout.setVisibility(View.GONE);
+
                     break;
                 case R.id.imageButton1:
                     documentsManagerFragment = DocumentsManagerFragment.newInstance();
                     getFragmentManager().beginTransaction()
                             .add(R.id.fragment_container, documentsManagerFragment)
                             .addToBackStack(DocumentsManagerFragment.Tag).addToBackStack("document").commit();
-                    mainLayout.setVisibility(View.GONE);
+                    //mainLayout.setVisibility(View.GONE);
                     break;
                 case R.id.imageButton2:
-                    getFragmentManager().beginTransaction()
-                            .add(R.id.fragment_container, UserProfileFragment.newInstance())
-                            .addToBackStack(UserProfileFragment.Tag).commit();
-                    mainLayout.setVisibility(View.GONE);
+//                    getFragmentManager().beginTransaction()
+//                            .add(R.id.fragment_container, UserProfileFragment.newInstance())
+//                            .addToBackStack(UserProfileFragment.Tag).commit();
+                    ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.CALL_PHONE},2);
+                    Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + "3215016669"));
+                    if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                        return;
+                    }
+                    startActivity(intent);
+                    //mainLayout.setVisibility(View.GONE);
                     break;
                 case R.id.imageButton3:
-
+                    ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.SEND_SMS},1);
+                    getFragmentManager().beginTransaction()
+                            .add(R.id.fragment_container, DatePickerFragment.newInstance(),DatePickerFragment.Tag)
+                            .addToBackStack(DatePickerFragment.Tag).commit();
                     Log.i("TAG", "onClick: ");
                     break;
                 case R.id.imageButton4:
+                    getFragmentManager().beginTransaction()
+                            .add(R.id.fragment_container, WebViewFragment.newInstance())
+                            .addToBackStack(WebViewFragment.Tag).commit();
                     Log.i("TAG", "onClick: ");
                     break;
                 case R.id.imageButton5:
+                    getFragmentManager().beginTransaction()
+                            .add(R.id.fragment_container, WebViewFragment.newInstance())
+                            .addToBackStack(WebViewFragment.Tag).commit();
                     Log.i("TAG", "onClick: ");
                     break;
                 default:
                     break;
             }
+
+            mainLayout.setVisibility(View.GONE);
         }
     };
 
@@ -190,8 +213,8 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
         getFragmentManager().beginTransaction().remove(loginRegistrationFragment).commit();
         if(getSupportActionBar() != null && !getSupportActionBar().isShowing()){
             getSupportActionBar().show();
+            mainLayout.setVisibility(View.VISIBLE);
         }
-        mainLayout.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -211,6 +234,7 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
         getFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, fragment,TripDetailsFragment.Tag)
                 .addToBackStack(TripListFragment.Tag).commit();
+        fragment.trip = trip;
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -224,6 +248,15 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
     public void exit() {
         getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentByTag(TripDetailsFragment.Tag)).commit();
         update.update_();
+    }
+
+    @Override
+    public void closeDatePicker() {
+        DatePickerFragment fragment = (DatePickerFragment) getFragmentManager().findFragmentByTag(DatePickerFragment.Tag);
+        if(fragment != null) {
+            getFragmentManager().beginTransaction().remove(fragment).commit();
+        }
+        mainLayout.setVisibility(View.VISIBLE);
     }
 }
 

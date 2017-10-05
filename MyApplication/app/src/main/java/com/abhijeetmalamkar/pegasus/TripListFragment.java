@@ -5,6 +5,8 @@ import android.app.AlertDialog;
 import android.app.ListFragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.Toast;
 
 
 import java.io.FileInputStream;
@@ -27,6 +30,8 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class TripListFragment extends ListFragment implements TripsAdapter.DeleteTrip,Update {
 
@@ -146,6 +151,8 @@ public class TripListFragment extends ListFragment implements TripsAdapter.Delet
                         Location l = gt.getLocation();
                         Float[] points = {(float)l.getLatitude(),(float)l.getLongitude()};
                         trip.setEnd(points);
+                        trip.setLocations(new String[]{getAddress(trip.getStart())
+                                ,getAddress(trip.getEnd())});
                         trips.add(trip);
                         adapter.notifyDataSetChanged();
                         saveTrips(getuser.getUserDocuments().getEmail()+Tag,trips);
@@ -157,6 +164,33 @@ public class TripListFragment extends ListFragment implements TripsAdapter.Delet
             build.show();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public String getAddress(Float[] location) {
+        Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
+        String add = "";
+        try {
+            List<Address> addresses = geocoder.getFromLocation(location[0], location[1], 1);
+            if (addresses.size() > 0) {
+                Address obj = addresses.get(0);
+                add = obj.getAddressLine(0);
+                add = add + "\n" + obj.getCountryName();
+                add = add + "\n" + obj.getCountryCode();
+                add = add + "\n" + obj.getAdminArea();
+                add = add + "\n" + obj.getPostalCode();
+                add = add + "\n" + obj.getSubAdminArea();
+                add = add + "\n" + obj.getLocality();
+                add = add + "\n" + obj.getSubThoroughfare();
+
+                Log.v("IGA", "Address" + add);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+
+        return add;
     }
 
     @Override

@@ -6,4 +6,5 @@
         android:id="@+id/btn_logout"
         app:showAsAction="always"
         android:icon="@drawable/ic_add_circle_24dp"/>
+
 </menu>

@@ -91,7 +91,6 @@ public class LoginRegistrationFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -100,7 +99,6 @@ public class LoginRegistrationFragment extends Fragment {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_login_registration, container, false);
     }
-
 
     @Override
     public void onAttach(Context context) {

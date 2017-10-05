@@ -82,7 +82,10 @@ class TripsAdapter extends BaseAdapter {
             c.setTime(trip.date);
             vh.num_day.setText(String.valueOf(c.get(Calendar.DATE)));
             vh.month.setText(DocumentsManagerFragment.months[c.get(Calendar.MONTH)].toUpperCase());
-
+            if(trip.locations.length > 1) {
+                vh.from.setText(trip.getLocations()[0]);
+                vh.to.setText(trip.getLocations()[1]);
+            }
 //            vh.button_notes.setOnClickListener(new View.OnClickListener() {
 //                @Override
 //                public void onClick(View v) {

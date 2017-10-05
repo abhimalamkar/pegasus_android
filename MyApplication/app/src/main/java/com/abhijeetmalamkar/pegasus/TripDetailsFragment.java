@@ -4,10 +4,11 @@ import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
+import android.widget.TextView;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -15,7 +16,6 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -32,17 +32,19 @@ public class TripDetailsFragment extends Fragment {
     ArrayList<Trip> trips;
     int i = 0;
     public static String Tag = "TripDetailsFragment";
+    MapView[] mapViews;
+    GoogleMap[] maps;
 
    private OnMapReadyCallback mapReady = new OnMapReadyCallback() {
        @Override
        public void onMapReady(GoogleMap googleMap) {
            if(i == 0) {
-               zoomInCamera(trip.start,googleMap);
                addMarker(trip.start,googleMap);
+               zoomInCamera(trip.start,googleMap);
                i++;
            } else {
-               zoomInCamera(trip.end,googleMap);
                addMarker(trip.end,googleMap);
+               zoomInCamera(trip.end,googleMap);
            }
        }
    };
@@ -96,13 +98,23 @@ public class TripDetailsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         view.findViewById(R.id.cancel_btn).setOnClickListener(cancelListener);
-        ((MapView)view.findViewById(R.id.map_1)).getMapAsync(mapReady);
-        ((MapView)view.findViewById(R.id.map_2)).getMapAsync(mapReady);
+
+        mapViews = new MapView[]{view.findViewById(R.id.map_1),view.findViewById(R.id.map_2)};
+
+        mapViews[0].onCreate(savedInstanceState);
+        mapViews[1].onCreate(savedInstanceState);
+
+        mapViews[0].getMapAsync(mapReady);
+        mapViews[1].getMapAsync(mapReady);
+
         view.findViewById(R.id.btn_trip).setOnClickListener(tripListner);
         view.findViewById(R.id.btn_notes).setOnClickListener(noteListner);
         view.findViewById(R.id.trip_delete).setOnClickListener(delete);
+        ((TextView)view.findViewById(R.id.from_)).setText(trip.getLocations()[0]);
+        ((TextView)view.findViewById(R.id.to_)).setText(trip.getLocations()[1]);
         trips = loadTrips(((TripListFragment.GetUser)mContext).getUserDocuments().getEmail()+TripListFragment.Tag);
-        trip = trips.get(position);
+        //trip = trips.get(position);
+        Log.d("", "onViewCreated: " + trip.locations[0]);
     }
 
     private View.OnClickListener tripListner = new View.OnClickListener() {
@@ -176,6 +188,5 @@ public class TripDetailsFragment extends Fragment {
         super.onAttach(context);
         mContext = context;
     }
-
 
 }

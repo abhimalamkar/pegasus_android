@@ -14,19 +14,20 @@
         <FrameLayout
             android:id="@+id/main_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:visibility="visible">
+
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/background_"
                 android:adjustViewBounds="true"
-                android:scaleType="centerCrop"/>
+                android:scaleType="centerCrop"
+                android:src="@drawable/background_" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#80ffffff">
-            </View>
+                android:background="#80ffffff"></View>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -46,21 +47,20 @@
                         android:id="@+id/imageButton"
                         android:layout_width="150dp"
                         android:layout_height="150dp"
-                        app:srcCompat="@drawable/btn_0"
-                        android:background="#00000000"
                         android:adjustViewBounds="true"
-                        android:scaleType="centerInside"/>
+                        android:background="#00000000"
+                        android:scaleType="centerInside"
+                        app:srcCompat="@drawable/btn_0" />
 
                     <ImageButton
                         android:id="@+id/imageButton1"
                         android:layout_width="150dp"
                         android:layout_height="150dp"
                         android:layout_marginLeft="16dp"
-                        android:background="#00000000"
-                        app:srcCompat="@drawable/btn_1"
                         android:adjustViewBounds="true"
+                        android:background="#00000000"
                         android:scaleType="centerInside"
-                        />
+                        app:srcCompat="@drawable/btn_1" />
 
                 </LinearLayout>
 
@@ -77,20 +77,20 @@
                         android:id="@+id/imageButton2"
                         android:layout_width="150dp"
                         android:layout_height="150dp"
-                        android:background="#00000000"
-                        app:srcCompat="@drawable/btn_2"
                         android:adjustViewBounds="true"
-                        android:scaleType="centerInside"/>
+                        android:background="#00000000"
+                        android:scaleType="centerInside"
+                        app:srcCompat="@drawable/btn_2" />
 
                     <ImageButton
                         android:id="@+id/imageButton3"
                         android:layout_width="150dp"
                         android:layout_height="150dp"
-                        android:background="#00000000"
                         android:layout_marginLeft="16dp"
-                        app:srcCompat="@drawable/btn_3"
                         android:adjustViewBounds="true"
-                        android:scaleType="centerInside"/>
+                        android:background="#00000000"
+                        android:scaleType="centerInside"
+                        app:srcCompat="@drawable/btn_3" />
 
                 </LinearLayout>
 
@@ -107,20 +107,20 @@
                         android:id="@+id/imageButton4"
                         android:layout_width="150dp"
                         android:layout_height="150dp"
-                        android:background="#00000000"
-                        app:srcCompat="@drawable/btn_4"
                         android:adjustViewBounds="true"
-                        android:scaleType="centerInside"/>
+                        android:background="#00000000"
+                        android:scaleType="centerInside"
+                        app:srcCompat="@drawable/btn_4" />
 
                     <ImageButton
                         android:id="@+id/imageButton5"
                         android:layout_width="150dp"
                         android:layout_height="150dp"
-                        android:background="#00000000"
                         android:layout_marginLeft="16dp"
-                        app:srcCompat="@drawable/btn_5"
                         android:adjustViewBounds="true"
-                        android:scaleType="centerInside"/>
+                        android:background="#00000000"
+                        android:scaleType="centerInside"
+                        app:srcCompat="@drawable/btn_5" />
 
                 </LinearLayout>
             </LinearLayout>

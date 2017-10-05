@@ -12,7 +12,6 @@ import android.util.Log;
 import static android.content.Context.LOCATION_SERVICE;
 
 public class GpsTracker implements LocationListener {
-
     Context context;
 
     public GpsTracker(Context context) {
@@ -25,6 +24,7 @@ public class GpsTracker implements LocationListener {
             Log.e("fist","error");
             return null;
         }
+
         try {
             LocationManager lm = (LocationManager) context.getSystemService(LOCATION_SERVICE);
             boolean isGPSEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
@@ -38,6 +38,7 @@ public class GpsTracker implements LocationListener {
         }catch (Exception e){
             e.printStackTrace();
         }
+
         return null;
     }
 
