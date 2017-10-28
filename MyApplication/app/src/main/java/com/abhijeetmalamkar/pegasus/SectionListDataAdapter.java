@@ -16,6 +16,11 @@ public class SectionListDataAdapter extends RecyclerView.Adapter<SectionListData
 
     private ArrayList<SingleDocument> itemsList;
     private Context mContext;
+    OpenSingle openSingle;
+
+    interface OpenSingle{
+        void open(SingleDocument document,int position);
+    }
 
     public SectionListDataAdapter(Context context, ArrayList<SingleDocument> itemsList) {
         this.itemsList = itemsList;
@@ -59,7 +64,12 @@ public class SectionListDataAdapter extends RecyclerView.Adapter<SectionListData
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(v.getContext(), tvTitle.getText(), Toast.LENGTH_SHORT).show();
+                    for(int i = 0;i<itemsList.size();i++) {
+                        if(itemsList.get(i).getName().equals(tvTitle.getText().toString())) {
+                            openSingle.open(itemsList.get(i),i);
+                        }
+                    }
+
                 }
             });
         }

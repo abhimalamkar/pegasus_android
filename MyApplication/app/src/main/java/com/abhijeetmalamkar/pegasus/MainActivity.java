@@ -14,27 +14,52 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.github.jjobes.slidedatetimepicker.SlideDateTimeListener;
+import com.github.jjobes.slidedatetimepicker.SlideDateTimePicker;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 
 public class MainActivity extends AppCompatActivity implements LoginRegistrationFragment.GetLoginRegistation,
-        DocumentsManagerFragment.AddDocument, TripListFragment.GetUser, TripDetailsFragment.CloseFragment, DatePickerFragment.Close {
+        DocumentsManagerFragment.AddDocument, TripListFragment.GetUser, TripDetailsFragment.CloseFragment,
+        DatePickerFragment.Close, RecyclerViewDataAdapter.Open, SingleDocumentFragment.Mail, ProfileListFragment.ClickYear {
 
     public static final String PREF_USER_FIRST_TIME = "user_first_time";
     ArrayList<View> buttons;
     View mainLayout;
     User user;
+
     private static String CURRENT_USER = "CURRENT_USER";
     private static String NONE = "none";
     private static final int CAMERA_REQUEST = 1888;
     DocumentsManagerFragment documentsManagerFragment;
     GetImage getImage;
     public Update update;
+
+    private SimpleDateFormat mFormatter = new SimpleDateFormat("MMMM dd yyyy hh:mm aa");
+
+    private SlideDateTimeListener simpleListener = new SlideDateTimeListener() {
+
+        @Override
+        public void onDateTimeSet(Date date) {
+            Toast.makeText(MainActivity.this,
+                    mFormatter.format(date), Toast.LENGTH_SHORT).show();
+        }
+
+        // Optional cancel listener
+        @Override
+        public void onDateTimeCancel() {
+            Toast.makeText(MainActivity.this,
+                    "Canceled", Toast.LENGTH_SHORT).show();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
                 _user.setLoggedIn(false);
                 saveUser(_user, CURRENT_USER);
             }
+
             presentLoginScreen();
         }
         return super.onOptionsItemSelected(item);
@@ -101,46 +127,42 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
                 case R.id.imageButton:
 
                     getFragmentManager().beginTransaction()
-                            .add(R.id.fragment_container, TripListFragment.newInstance())
+                            .replace(R.id.fragment_container, TripListFragment.newInstance())
                             .addToBackStack(TripListFragment.Tag).addToBackStack("trip").commit();
 
                     break;
                 case R.id.imageButton1:
                     documentsManagerFragment = DocumentsManagerFragment.newInstance();
                     getFragmentManager().beginTransaction()
-                            .add(R.id.fragment_container, documentsManagerFragment)
+                            .replace(R.id.fragment_container, documentsManagerFragment)
                             .addToBackStack(DocumentsManagerFragment.Tag).addToBackStack("document").commit();
-                    //mainLayout.setVisibility(View.GONE);
                     break;
                 case R.id.imageButton2:
-//                    getFragmentManager().beginTransaction()
-//                            .add(R.id.fragment_container, UserProfileFragment.newInstance())
-//                            .addToBackStack(UserProfileFragment.Tag).commit();
-                    ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.CALL_PHONE},2);
-                    Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + "3215016669"));
-                    if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                        return;
+                    for (int i = 0;i<2;i++) {
+                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CALL_PHONE}, 2);
+                        Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + (i == 0 ? "5614458551" : "5618091288")));
+                        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                            return;
+                        }
+                        startActivity(intent);
                     }
-                    startActivity(intent);
-                    //mainLayout.setVisibility(View.GONE);
+
                     break;
                 case R.id.imageButton3:
-                    ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.SEND_SMS},1);
+                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.SEND_SMS}, 1);
                     getFragmentManager().beginTransaction()
-                            .add(R.id.fragment_container, DatePickerFragment.newInstance(),DatePickerFragment.Tag)
+                            .replace(R.id.fragment_container, DatePickerFragment.newInstance(), DatePickerFragment.Tag)
                             .addToBackStack(DatePickerFragment.Tag).commit();
-                    Log.i("TAG", "onClick: ");
                     break;
                 case R.id.imageButton4:
                     getFragmentManager().beginTransaction()
-                            .add(R.id.fragment_container, WebViewFragment.newInstance())
-                            .addToBackStack(WebViewFragment.Tag).commit();
-                    Log.i("TAG", "onClick: ");
+                            .replace(R.id.fragment_container, ProfileListFragment.newInstance(user), ProfileListFragment.Tag)
+                            .addToBackStack(ProfileListFragment.Tag).commit();
                     break;
                 case R.id.imageButton5:
                     getFragmentManager().beginTransaction()
-                            .add(R.id.fragment_container, WebViewFragment.newInstance())
-                            .addToBackStack(WebViewFragment.Tag).commit();
+                            .replace(R.id.fragment_container, FragmentAboutMe.newInstance(),FragmentAboutMe.Tag)
+                            .addToBackStack(FragmentAboutMe.Tag).commit();
                     Log.i("TAG", "onClick: ");
                     break;
                 default:
@@ -153,26 +175,50 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
 
     @Override
     public void onBackPressed() {
+        ProfileListFragment fragment = (ProfileListFragment) getFragmentManager().findFragmentByTag(ProfileListFragment.Tag);
+        FragmentAboutMe fragmentAboutMe = (FragmentAboutMe) getFragmentManager().findFragmentByTag(FragmentAboutMe.Tag);
+        if (fragment != null) {
+            if (fragment.isYear.equals("goToSection")) {
+                fragment.setScrollGone();
+
+            } else if (fragment.isYear.equals("goToYear")) {
+                fragment.setYear();
+            } else if (fragment.isYear.equals("goToMain")) {
+                setMain();
+            }
+
+        } else if (fragmentAboutMe != null) {
+            if (fragmentAboutMe.to.equals("Sections")) {
+                fragmentAboutMe.setSections();
+            } else {
+                setMain();
+            }
+        } else {
+            setMain();
+        }
+    }
+
+    void setMain(){
         super.onBackPressed();
-        if(getSupportActionBar() != null && !getSupportActionBar().isShowing()){
+        if (getSupportActionBar() != null && !getSupportActionBar().isShowing()) {
             getSupportActionBar().show();
         }
         mainLayout.setVisibility(View.VISIBLE);
     }
 
-    private void saveUser(User user,String filename){
+    private void saveUser(User user, String filename) {
         try {
             FileOutputStream fos = this.openFileOutput(filename + ".bin", MODE_PRIVATE);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(user);
             oos.close();
 
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private User loadUser(String filename){
+    private User loadUser(String filename) {
         User user = null;
         try {
             FileInputStream fis = this.openFileInput(filename + ".bin");
@@ -180,7 +226,7 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
             user = (User) ois.readObject();
             ois.close();
 
-        } catch(IOException | ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
         return user;
@@ -190,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
     public Boolean login(String name, String password) {
         user = loadUser(name);
 
-        if(user != null && user.getPassword().equals(password)){
+        if (user != null && user.getPassword().equals(password)) {
             registration(user);
             return true;
         }
@@ -202,16 +248,16 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
     public void registration(User _user) {
         _user.setLoggedIn(true);
         user = _user;
-        saveUser(user,user.getEmail());
-        saveUser(user,CURRENT_USER);
+        saveUser(user, user.getEmail());
+        saveUser(user, CURRENT_USER);
         close();
-        Toast.makeText(MainActivity.this,user.getEmail()+" Loggin IN", Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, user.getEmail() + " Loggin IN", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void close() {
         getFragmentManager().beginTransaction().remove(loginRegistrationFragment).commit();
-        if(getSupportActionBar() != null && !getSupportActionBar().isShowing()){
+        if (getSupportActionBar() != null && !getSupportActionBar().isShowing()) {
             getSupportActionBar().show();
             mainLayout.setVisibility(View.VISIBLE);
         }
@@ -232,8 +278,7 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
     public void details(Trip trip, int position) {
         TripDetailsFragment fragment = TripDetailsFragment.newInstance(position);
         getFragmentManager().beginTransaction()
-                .add(R.id.fragment_container, fragment,TripDetailsFragment.Tag)
-                .addToBackStack(TripListFragment.Tag).commit();
+                .add(R.id.fragment_container, fragment, TripDetailsFragment.Tag).commit();
         fragment.trip = trip;
     }
 
@@ -246,21 +291,76 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
 
     @Override
     public void exit() {
-        getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentByTag(TripDetailsFragment.Tag)).commit();
-        update.update_();
+        TripDetailsFragment fragment = (TripDetailsFragment) getFragmentManager().findFragmentByTag(TripDetailsFragment.Tag);
+        if (fragment != null) {
+            getFragmentManager().beginTransaction()
+                    .remove(fragment).commit();
+        }
+    }
+
+    @Override
+    public void getDate() {
+
     }
 
     @Override
     public void closeDatePicker() {
         DatePickerFragment fragment = (DatePickerFragment) getFragmentManager().findFragmentByTag(DatePickerFragment.Tag);
-        if(fragment != null) {
+        if (fragment != null) {
             getFragmentManager().beginTransaction().remove(fragment).commit();
         }
-        mainLayout.setVisibility(View.VISIBLE);
+
+    }
+
+    @Override
+    public void openSingle(SingleDocument document,int position) {
+        getFragmentManager().beginTransaction()
+                .add(R.id.fragment_container, SingleDocumentFragment.newInstance(document,position), SingleDocumentFragment.Tag)
+                .addToBackStack(SingleDocumentFragment.Tag).commit();
+        mainLayout.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void openMonth(DocumentsCollection collection,int position) {
+        getFragmentManager().beginTransaction()
+                .add(R.id.fragment_container, DocumentCollectionFragment.newInstance(collection), DocumentCollectionFragment.Tag)
+                .addToBackStack(DocumentCollectionFragment.Tag).commit();
+        mainLayout.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void singleDocument(SingleDocument document,int position) {
+        sendEmail();
+    }
+
+    protected void sendEmail() {
+        Log.i("Send email", "");
+        String[] TO = {"abhijeetmalamkar@gmail.com"};
+        String[] CC = {""};
+        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+
+        emailIntent.setData(Uri.parse("mailto:"));
+        emailIntent.setType("text/plain");
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, TO);
+        emailIntent.putExtra(Intent.EXTRA_CC, CC);
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Your subject");
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "Email message goes here");
+
+        try {
+            startActivity(Intent.createChooser(emailIntent, "Send mail..."));
+            finish();
+        } catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(MainActivity.this, "There is no email client installed.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void selectedYear(ArrayList<Year> year, int position, String name) {
+
     }
 }
 
-interface GetImage{
+interface GetImage {
     void getImage(Bitmap image);
 }
 

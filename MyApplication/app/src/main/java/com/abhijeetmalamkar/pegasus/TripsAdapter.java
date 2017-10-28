@@ -1,10 +1,13 @@
 package com.abhijeetmalamkar.pegasus;
 
 import android.content.Context;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -19,15 +22,12 @@ class TripsAdapter extends BaseAdapter {
     private final Context mContext;
     private final List<Trip> mList;
 
-    public interface DeleteTrip{
-        void deleteTrip(Date date);
-        void getTrip(Trip trip);
-    }
 
     // --Commented out by Inspection (6/9/17, 4:52 PM):private boolean isGrid = false;
     //Constructor
     TripsAdapter(Context mContext, List<Trip> mList) {
         this.mContext = mContext;
+
         this.mList = mList;
     }
 
@@ -75,9 +75,7 @@ class TripsAdapter extends BaseAdapter {
 
         if (trip != null) {
             vh.num_miles.setText(String.valueOf(trip.getDistance()));
-
             //zoomInCamera(trip.start,map.get(0));
-
             Calendar c = Calendar.getInstance();
             c.setTime(trip.date);
             vh.num_day.setText(String.valueOf(c.get(Calendar.DATE)));
@@ -86,29 +84,7 @@ class TripsAdapter extends BaseAdapter {
                 vh.from.setText(trip.getLocations()[0]);
                 vh.to.setText(trip.getLocations()[1]);
             }
-//            vh.button_notes.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    vh.notes_view.setVisibility(View.VISIBLE);
-//                    vh.trip_view.setVisibility(View.GONE);
-//                }
-//            });
-//            vh.button_trip.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    vh.trip_view.setVisibility(View.VISIBLE);
-//                    vh.notes_view.setVisibility(View.GONE);
-//                }
-//            });
-//            vh.trip_delete.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    deleteTrip.deleteTrip(trip.date);
-//                }
-//            });
-//
-//            trip.setPosition(position);
-//
+
 //            vh.toll.setText(trip.getToll() != null ? String.valueOf(trip.getToll()) : "");
 //
 //            vh.toll.addTextChangedListener(new TextWatcher() {
@@ -146,6 +122,7 @@ class ViewHolder {
     TextView month;
     EditText from;
     EditText to;
+
 
     ViewHolder(View v) {
         this.num_miles = (TextView)v.findViewById(R.id.num_miles);

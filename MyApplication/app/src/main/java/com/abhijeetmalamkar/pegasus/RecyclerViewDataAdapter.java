@@ -1,6 +1,7 @@
 package com.abhijeetmalamkar.pegasus;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,7 +14,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-public class RecyclerViewDataAdapter extends RecyclerView.Adapter<RecyclerViewDataAdapter.ItemRowHolder> {
+public class RecyclerViewDataAdapter extends RecyclerView.Adapter<RecyclerViewDataAdapter.ItemRowHolder> implements SectionListDataAdapter.OpenSingle {
 
     private ArrayList<DocumentsCollection> dataList;
     private Context mContext;
@@ -31,6 +32,18 @@ public class RecyclerViewDataAdapter extends RecyclerView.Adapter<RecyclerViewDa
     }
 
     @Override
+    public void open(SingleDocument document,int position) {
+        if(mContext instanceof Open) {
+            ((Open)mContext).openSingle(document,position);
+        }
+    }
+
+    interface Open{
+        void openSingle(SingleDocument document,int position);
+        void openMonth(DocumentsCollection collection,int position);
+    }
+
+    @Override
     public void onBindViewHolder(ItemRowHolder itemRowHolder, int i) {
 
         final String sectionName = dataList.get(i).getHeaderTitle();
@@ -40,7 +53,7 @@ public class RecyclerViewDataAdapter extends RecyclerView.Adapter<RecyclerViewDa
         itemRowHolder.itemTitle.setText(sectionName.toUpperCase());
 
         SectionListDataAdapter itemListDataAdapter = new SectionListDataAdapter(mContext, singleSectionItems);
-
+        itemListDataAdapter.openSingle = this;
         itemRowHolder.recycler_view_list.setHasFixedSize(true);
         itemRowHolder.recycler_view_list.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
         itemRowHolder.recycler_view_list.setAdapter(itemListDataAdapter);
@@ -48,7 +61,13 @@ public class RecyclerViewDataAdapter extends RecyclerView.Adapter<RecyclerViewDa
         itemRowHolder.btnMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(v.getContext(), "click event on more, "+sectionName , Toast.LENGTH_SHORT).show();
+                for(int i = 0;i < dataList.size();i++) {
+                    if(dataList.get(i).getHeaderTitle().equals(sectionName)) {
+                        if(mContext instanceof Open) {
+                            ((Open)mContext).openMonth(dataList.get(i),i);
+                        }
+                    }
+                }
             }
         });
     }

@@ -1,6 +1,8 @@
 package com.abhijeetmalamkar.pegasus;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.ColorLong;
@@ -20,6 +22,7 @@ public class DatePickerFragment extends Fragment {
 
     public static String Tag = "DatePickerFragment";
     Close close;
+    Context mContext;
 
     public DatePickerFragment() {
         // Required empty public constructor
@@ -27,6 +30,7 @@ public class DatePickerFragment extends Fragment {
 
     public interface Close{
         void closeDatePicker();
+        void getDate();
     }
 
     public static DatePickerFragment newInstance() {
@@ -47,6 +51,25 @@ public class DatePickerFragment extends Fragment {
         setHasOptionsMenu(true);
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        MenuItem item = menu.findItem(R.id.btn_logout);
+        item.setVisible(false);
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.add,menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (R.id.btn_add == item.getItemId()) {
+            if(mContext instanceof Close) {
+                ((Close)mContext).getDate();
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    String dateValue;
     private View.OnClickListener bookListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -56,18 +79,22 @@ public class DatePickerFragment extends Fragment {
                 int day = picker.getDayOfMonth();
                 int month = picker.getMonth() + 1;
                 int year = picker.getYear();
-                sendSMS("3215016669", "Day: " + String.valueOf(day) + " Month: " + String.valueOf(month) + " Year: " + String.valueOf(year));
-                close.closeDatePicker();
+                AlertDialog.Builder build = new AlertDialog.Builder(mContext);
+                build.setTitle("Book Appointment?");
+                dateValue = "Day: " + String.valueOf(day) + " Month: " + String.valueOf(month) + " Year: " + String.valueOf(year);
+                build.setMessage("Booking Appointment for " + dateValue);
+                build.setPositiveButton("Book", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        sendSMS("3215016669", "Day: " + dateValue);
+                        close.closeDatePicker();
+                    }
+                });
+                build.setNegativeButton("Cancel", null);
+                build.show();
             }
         }
     };
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        MenuItem item = (MenuItem) menu.findItem(R.id.btn_logout);
-        item.setVisible(false);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
 
     private void sendSMS(String phoneNumber, String message) {
         SmsManager sms = SmsManager.getDefault();
@@ -84,6 +111,7 @@ public class DatePickerFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        mContext = context;
         if(context instanceof Close) {
             close = (Close) context;
         }

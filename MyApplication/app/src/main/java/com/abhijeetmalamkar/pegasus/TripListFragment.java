@@ -33,7 +33,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class TripListFragment extends ListFragment implements TripsAdapter.DeleteTrip,Update {
+public class TripListFragment extends ListFragment implements Update {
 
     public static String Tag = "TripListFragment.Tag";
     Context mContext;
@@ -141,23 +141,26 @@ public class TripListFragment extends ListFragment implements TripsAdapter.Delet
 //                        builder.show();
                         GpsTracker gt = new GpsTracker(mContext);
                         Location l = gt.getLocation();
-                                final Calendar c = Calendar.getInstance();
-                        Float[] points = {(float)l.getLatitude(),(float)l.getLongitude()};
-                                trip = new Trip(m_Text,points,null,c.getTime());
+                        if(l!=null) {
+                            final Calendar c = Calendar.getInstance();
+                            Float[] points = {(float) l.getLatitude(), (float) l.getLongitude()};
+                            trip = new Trip(m_Text, points, null, c.getTime());
 
-
+                        } else {
+                            Toast.makeText(mContext,"NO Location",Toast.LENGTH_SHORT).show();
+                        }
                             } else {
-                        GpsTracker gt = new GpsTracker(mContext);
-                        Location l = gt.getLocation();
-                        Float[] points = {(float)l.getLatitude(),(float)l.getLongitude()};
-                        trip.setEnd(points);
-                        trip.setLocations(new String[]{getAddress(trip.getStart())
-                                ,getAddress(trip.getEnd())});
-                        trips.add(trip);
-                        adapter.notifyDataSetChanged();
-                        saveTrips(getuser.getUserDocuments().getEmail()+Tag,trips);
-                        trip = null;
-                    }
+                            GpsTracker gt = new GpsTracker(mContext);
+                            Location l = gt.getLocation();
+                            Float[] points = {(float) l.getLatitude(), (float) l.getLongitude()};
+                            trip.setEnd(points);
+                            trip.setLocations(new String[]{getAddress(trip.getStart())
+                                    , getAddress(trip.getEnd())});
+                            trips.add(trip);
+                            adapter.notifyDataSetChanged();
+                            saveTrips(getuser.getUserDocuments().getEmail() + Tag, trips);
+                            trip = null;
+                        }
                 }
             });
             build.setNegativeButton("Cancel", null);
@@ -247,16 +250,5 @@ public class TripListFragment extends ListFragment implements TripsAdapter.Delet
         if(context instanceof MainActivity) {
             ((MainActivity) context).update = TripListFragment.this;
         }
-    }
-
-    @Override
-    public void deleteTrip(Date date) {
-        Log.i("", "deleteTrip: " + date);
-    }
-
-    @Override
-    public void getTrip(Trip trip) {
-        trips.get(trip.position).setToll(trip.toll);
-        saveTrips(getuser.getUserDocuments().getEmail()+Tag,trips);
     }
 }

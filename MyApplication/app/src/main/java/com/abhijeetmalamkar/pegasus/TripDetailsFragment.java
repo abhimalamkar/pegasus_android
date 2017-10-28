@@ -4,11 +4,20 @@ import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
+
+import com.github.jjobes.slidedatetimepicker.SlideDateTimeListener;
+import com.github.jjobes.slidedatetimepicker.SlideDateTimePicker;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -21,7 +30,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 
 
 public class TripDetailsFragment extends Fragment {
@@ -32,47 +44,6 @@ public class TripDetailsFragment extends Fragment {
     ArrayList<Trip> trips;
     int i = 0;
     public static String Tag = "TripDetailsFragment";
-    MapView[] mapViews;
-    GoogleMap[] maps;
-
-   private OnMapReadyCallback mapReady = new OnMapReadyCallback() {
-       @Override
-       public void onMapReady(GoogleMap googleMap) {
-           if(i == 0) {
-               addMarker(trip.start,googleMap);
-               zoomInCamera(trip.start,googleMap);
-               i++;
-           } else {
-               addMarker(trip.end,googleMap);
-               zoomInCamera(trip.end,googleMap);
-           }
-       }
-   };
-
-    void zoomInCamera(Float[] location, GoogleMap mMap){
-        if(mMap == null) {
-            return;
-        }
-
-        LatLng _location = new LatLng(location[0],location[1]);
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(_location,16);
-        mMap.animateCamera(cameraUpdate);
-    }
-
-    void addMarker(Float[] trip, GoogleMap mMap){
-        if(mMap == null) {
-            return;
-        }
-
-        MarkerOptions options = new MarkerOptions();
-        options.title("");
-        options.snippet("");
-        //options.icon(BitmapDescriptorFactory.fromBitmap(image.getImage()));
-
-        LatLng location = new LatLng(trip[0],trip[1]);
-        options.position(location);
-        mMap.addMarker(options);
-    }
 
     public interface CloseFragment{
         void exit();
@@ -99,23 +70,105 @@ public class TripDetailsFragment extends Fragment {
 
         view.findViewById(R.id.cancel_btn).setOnClickListener(cancelListener);
 
-        mapViews = new MapView[]{view.findViewById(R.id.map_1),view.findViewById(R.id.map_2)};
-
-        mapViews[0].onCreate(savedInstanceState);
-        mapViews[1].onCreate(savedInstanceState);
-
-        mapViews[0].getMapAsync(mapReady);
-        mapViews[1].getMapAsync(mapReady);
 
         view.findViewById(R.id.btn_trip).setOnClickListener(tripListner);
         view.findViewById(R.id.btn_notes).setOnClickListener(noteListner);
         view.findViewById(R.id.trip_delete).setOnClickListener(delete);
-        ((TextView)view.findViewById(R.id.from_)).setText(trip.getLocations()[0]);
-        ((TextView)view.findViewById(R.id.to_)).setText(trip.getLocations()[1]);
-        trips = loadTrips(((TripListFragment.GetUser)mContext).getUserDocuments().getEmail()+TripListFragment.Tag);
+        ((TextView) view.findViewById(R.id.from_)).setText(trip.getLocations()[0]);
+        ((TextView) view.findViewById(R.id.to_)).setText(trip.getLocations()[1]);
+        trips = loadTrips(((TripListFragment.GetUser) mContext).getUserDocuments().getEmail() + TripListFragment.Tag);
         //trip = trips.get(position);
         Log.d("", "onViewCreated: " + trip.locations[0]);
+
+        EditText toll = view.findViewById(R.id.num_toll);
+        EditText parking = view.findViewById(R.id.num_parking);
+        EditText note = view.findViewById(R.id.str_notes);
+
+        toll.setText(trip.getToll() != null ? String.valueOf(trip.getToll()) : "");
+        parking.setText(trip.getParking() != null ? String.valueOf(trip.getParking()) : "");
+        note.setText(trip.getNote() != null ? trip.getNote() : "");
+
+        toll.addTextChangedListener(tollWatcher);
+        parking.addTextChangedListener(parkingWatcher);
+        note.addTextChangedListener(noteWatcher);
+
     }
+
+    private TextWatcher tollWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if(!String.valueOf(s).equals("")) {
+                trip.setToll(Float.valueOf(String.valueOf(s)));
+                saveTrip();
+            }
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+
+        }
+
+    };
+
+    private void saveTrip(){
+        trips = loadTrips(((TripListFragment.GetUser)mContext).getUserDocuments().getEmail()+TripListFragment.Tag);
+        for (int i = 0; i < trips.size();i++) {
+
+            if (Arrays.equals(trips.get(i).getLocations(),trip.getLocations())) {
+                trips.get(i).setNote(trip.getNote());
+                trips.get(i).setParking(trip.getParking());
+                trips.get(i).setToll(trip.getToll());
+                saveTrips(((TripListFragment.GetUser)mContext).getUserDocuments().getEmail()+TripListFragment.Tag,trips);
+            }
+        }
+    }
+
+    private TextWatcher parkingWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if(!String.valueOf(s).equals("")) {
+                trip.setParking(Float.valueOf(String.valueOf(s)));
+                saveTrip();
+            }
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+
+        }
+
+    };
+
+    private TextWatcher noteWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if(!String.valueOf(s).equals("")) {
+                trip.setNote(String.valueOf(s));
+                saveTrip();
+            }
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+
+        }
+
+    };
 
     private View.OnClickListener tripListner = new View.OnClickListener() {
         @Override

@@ -50,18 +50,16 @@
                     android:layout_weight="0.45"
                     android:weightSum="1">
 
-                    <com.google.android.gms.maps.MapView
+                    <FrameLayout
                         android:id="@+id/map_1"
                         android:layout_weight="0.5"
-                        android:apiKey="AIzaSyBpfKpOETkQuJO31W836kiv7LSCYiMweQU"
                         android:layout_width="match_parent"
                         android:background="@color/grey"
                         android:layout_height="match_parent" />
 
-                    <com.google.android.gms.maps.MapView
+                    <FrameLayout
                         android:id="@+id/map_2"
                         android:layout_weight="0.5"
-                        android:apiKey="AIzaSyBpfKpOETkQuJO31W836kiv7LSCYiMweQU"
                         android:background="@color/grey"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" />

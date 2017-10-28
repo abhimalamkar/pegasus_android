@@ -1,7 +1,9 @@
 package com.abhijeetmalamkar.pegasus;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -67,8 +69,17 @@ public class LoginRegistrationFragment extends Fragment {
             EditText address = (EditText) view.findViewById(R.id.address_registration);
             EditText email = (EditText) view.findViewById(R.id.email_registration);
             EditText password = (EditText) view.findViewById(R.id.password_registration);
-            listner.registration(new User(email.getText().toString(),password.getText().toString(),
-                    name.getText().toString(),address.getText().toString()));
+            if(!name.getText().toString().isEmpty() && !address.getText().toString().isEmpty() && !email.getText().toString().isEmpty() && !password.getText().toString().isEmpty()) {
+                listner.registration(new User(email.getText().toString(), password.getText().toString(),
+                        name.getText().toString(), address.getText().toString()));
+            } else {
+                AlertDialog.Builder build = new AlertDialog.Builder(mContext);
+                build.setTitle("Error!");
+                build.setMessage("Please fill out all the fields");
+                build.setPositiveButton("OKay", null);
+                build.setNegativeButton("Cancel", null);
+                build.show();
+            }
         }
     };
 

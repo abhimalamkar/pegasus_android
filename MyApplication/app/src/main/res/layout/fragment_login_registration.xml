@@ -94,7 +94,7 @@
                     android:inputType="textPersonName"
                     android:textColor="#FFFFFF"
                     android:textColorHint="#FFFFFF"
-                    android:hint="Name" />
+                    android:hint="Email" />
 
                 <EditText
                     android:id="@+id/password_login"
@@ -104,7 +104,7 @@
                     android:inputType="textPassword"
                     android:textColor="#FFFFFF"
                     android:textColorHint="#FFFFFF"
-                    android:hint="Email" />
+                    android:hint="Password" />
 
                 <Button
                     android:id="@+id/btn_login_"
