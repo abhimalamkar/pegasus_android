@@ -57,6 +57,8 @@ public class LoginRegistrationFragment extends Fragment {
             EditText password = (EditText) view.findViewById(R.id.password_login);
             if(listner.login(email.getText().toString(),password.getText().toString())){
                 listner.close();
+            } else {
+                Alert.show(mContext,"Error","Wrong Password/ID!",null,null);
             }
         }
     };
@@ -127,3 +129,5 @@ public class LoginRegistrationFragment extends Fragment {
     }
 
 }
+
+

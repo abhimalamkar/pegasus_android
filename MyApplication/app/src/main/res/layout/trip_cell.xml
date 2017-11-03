@@ -13,7 +13,7 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginTop="16dp"
-        android:background="#aaaaaa"
+        android:background="#F37421"
         android:orientation="vertical">
 
 
@@ -40,12 +40,14 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
                     android:text="0.0"
+                    android:textColor="#FFFF"
                     android:textSize="18sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
+                    android:textColor="#FFFF"
                     android:text="@string/miles" />
 
             </LinearLayout>
@@ -65,10 +67,12 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
                     android:text="0.0"
+                    android:textColor="#FFFF"
                     android:textSize="18sp" />
 
                 <TextView
                     android:id="@+id/str_day"
+                    android:textColor="#FFFF"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
@@ -123,10 +127,12 @@
                         android:layout_weight="0.85"
                         android:clickable="false"
                         android:cursorVisible="false"
+                        android:backgroundTint="#FFF"
                         android:textSize="14sp"
                         android:focusable="false"
                         android:focusableInTouchMode="false"
                         android:ems="10"
+                        android:textColor="#FFFF"
                         android:inputType="textPersonName"
                         android:text="FROM" />
 
@@ -155,11 +161,13 @@
                         android:layout_weight="0.85"
                         android:clickable="false"
                         android:textSize="14sp"
+                        android:backgroundTint="#FFF"
                         android:cursorVisible="false"
                         android:ems="10"
                         android:focusable="false"
                         android:focusableInTouchMode="false"
                         android:inputType="textPersonName"
+                        android:textColor="#FFFF"
                         android:text="TO" />
 
                 </LinearLayout>

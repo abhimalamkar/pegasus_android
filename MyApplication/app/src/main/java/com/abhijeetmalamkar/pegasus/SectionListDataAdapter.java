@@ -19,7 +19,7 @@ public class SectionListDataAdapter extends RecyclerView.Adapter<SectionListData
     OpenSingle openSingle;
 
     interface OpenSingle{
-        void open(SingleDocument document,int position);
+        void open(ArrayList<SingleDocument> document,int position);
     }
 
     public SectionListDataAdapter(Context context, ArrayList<SingleDocument> itemsList) {
@@ -66,7 +66,7 @@ public class SectionListDataAdapter extends RecyclerView.Adapter<SectionListData
                 public void onClick(View v) {
                     for(int i = 0;i<itemsList.size();i++) {
                         if(itemsList.get(i).getName().equals(tvTitle.getText().toString())) {
-                            openSingle.open(itemsList.get(i),i);
+                            openSingle.open(itemsList,i);
                         }
                     }
 

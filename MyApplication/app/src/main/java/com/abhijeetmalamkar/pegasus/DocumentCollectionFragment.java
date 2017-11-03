@@ -15,24 +15,29 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 
 public class DocumentCollectionFragment extends Fragment {
 
     Context context;
     DocumentsCollection document;
+    User user;
     int position;
     public static String Tag = "DocumentCollectionFragment";
 
-    interface Mail{
+    interface MailCollection {
         void singleDocument(DocumentsCollection document,int position);
+        void exitCollection();
     }
 
     public DocumentCollectionFragment() {
     }
 
-    public static DocumentCollectionFragment newInstance(DocumentsCollection document) {
+    public static DocumentCollectionFragment newInstance(DocumentsCollection document,User user) {
         DocumentCollectionFragment fragment = new DocumentCollectionFragment();
         fragment.document = document;
+        fragment.user = user;
         return fragment;
     }
 
@@ -44,13 +49,14 @@ public class DocumentCollectionFragment extends Fragment {
         gridView.setOnItemClickListener(listener);
         gridView.setAdapter(new DocumentCollectionAdapter(context,document.getAllItemsInSection()));
         ((TextView)view.findViewById(R.id.textView)).setText(document.getHeaderTitle());
+        ((MainActivity) context).setTitle("Month Document Tracker");
     }
 
     private AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
             if(context instanceof RecyclerViewDataAdapter.Open) {
-                ((RecyclerViewDataAdapter.Open)context).openSingle(document.getAllItemsInSection().get(i),i);
+                ((RecyclerViewDataAdapter.Open)context).openSingle(document.getAllItemsInSection(),i);
             }
         }
     };
@@ -66,9 +72,16 @@ public class DocumentCollectionFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == R.id.share) {
-            if(context instanceof Mail) {
-                ((Mail)context).singleDocument(document,position);
+            if(context instanceof MailCollection) {
+                ((MailCollection)context).singleDocument(document,position);
             }
+        }
+
+        if(item.getItemId() == R.id.delete) {
+            ArrayList<DocumentsCollection> list = DocumentsUtil.loadDocuments(user.getEmail()+DocumentsManagerFragment.Tag,context);
+            list.remove(position);
+            DocumentsUtil.saveDocuments(user.getEmail()+DocumentsManagerFragment.Tag,list,context);
+            ((MailCollection)context).exitCollection();
         }
         return super.onOptionsItemSelected(item);
     }

@@ -1,4 +1,4 @@
-package com.abhijeetmalamkar.pegasus;
+package com.abhijeetmalamkar.pegasus.TripTracking;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -22,6 +22,14 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 
+import com.abhijeetmalamkar.pegasus.GpsTracker;
+import com.abhijeetmalamkar.pegasus.MainActivity;
+import com.abhijeetmalamkar.pegasus.R;
+import com.abhijeetmalamkar.pegasus.Trip;
+import com.abhijeetmalamkar.pegasus.TripsAdapter;
+import com.abhijeetmalamkar.pegasus.Update;
+import com.abhijeetmalamkar.pegasus.User;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -29,7 +37,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -75,6 +82,7 @@ public class TripListFragment extends ListFragment implements Update {
 
         setHasOptionsMenu(true);
         ActivityCompat.requestPermissions(getActivity(), new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, 123);
+        ((MainActivity) mContext).setTitle("Trip Tracker");
     }
 
     @Override
@@ -146,8 +154,9 @@ public class TripListFragment extends ListFragment implements Update {
                             Float[] points = {(float) l.getLatitude(), (float) l.getLongitude()};
                             trip = new Trip(m_Text, points, null, c.getTime());
 
-                        } else {
-                            Toast.makeText(mContext,"NO Location",Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            Toast.makeText(mContext,"No Location",Toast.LENGTH_SHORT).show();
                         }
                             } else {
                             GpsTracker gt = new GpsTracker(mContext);

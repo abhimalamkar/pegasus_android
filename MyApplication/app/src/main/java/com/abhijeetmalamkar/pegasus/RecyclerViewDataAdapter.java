@@ -32,14 +32,14 @@ public class RecyclerViewDataAdapter extends RecyclerView.Adapter<RecyclerViewDa
     }
 
     @Override
-    public void open(SingleDocument document,int position) {
+    public void open(ArrayList<SingleDocument> document,int position) {
         if(mContext instanceof Open) {
             ((Open)mContext).openSingle(document,position);
         }
     }
 
     interface Open{
-        void openSingle(SingleDocument document,int position);
+        void openSingle(ArrayList<SingleDocument> document,int position);
         void openMonth(DocumentsCollection collection,int position);
     }
 

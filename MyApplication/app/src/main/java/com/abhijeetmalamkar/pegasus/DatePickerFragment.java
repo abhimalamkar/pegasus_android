@@ -48,6 +48,7 @@ public class DatePickerFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         view.findViewById(R.id.book).setOnClickListener(bookListener);
+        ((MainActivity) mContext).setTitle("Appointments");
         setHasOptionsMenu(true);
     }
 

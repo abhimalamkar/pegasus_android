@@ -89,6 +89,7 @@ public class FragmentAboutMe extends Fragment {
 
         list.setAdapter(new ServicesAdapter(context, headers));
         list.setOnItemClickListener(listener);
+        ((MainActivity) context).setTitle("About Pegasus");
     }
 
     String to = "Services";

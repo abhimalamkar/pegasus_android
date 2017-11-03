@@ -120,6 +120,7 @@ public class ProfileListFragment extends ListFragment {
 
         setListAdapter(adapter);
         setHasOptionsMenu(true);
+        ((MainActivity) context).setTitle("Year Profile");
     }
 
     private void saveTrips(String filename, ArrayList<Year> years){

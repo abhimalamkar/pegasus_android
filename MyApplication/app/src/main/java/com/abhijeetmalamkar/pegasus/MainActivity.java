@@ -1,6 +1,7 @@
 package com.abhijeetmalamkar.pegasus;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -14,8 +15,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.abhijeetmalamkar.pegasus.DocumentCollectionFragment.MailCollection;
+import com.abhijeetmalamkar.pegasus.TripTracking.TripActivity;
+import com.abhijeetmalamkar.pegasus.TripTracking.TripDetailsFragment;
+import com.abhijeetmalamkar.pegasus.TripTracking.TripListFragment;
 import com.github.jjobes.slidedatetimepicker.SlideDateTimeListener;
-import com.github.jjobes.slidedatetimepicker.SlideDateTimePicker;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -29,7 +33,7 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements LoginRegistrationFragment.GetLoginRegistation,
         DocumentsManagerFragment.AddDocument, TripListFragment.GetUser, TripDetailsFragment.CloseFragment,
-        DatePickerFragment.Close, RecyclerViewDataAdapter.Open, SingleDocumentFragment.Mail, ProfileListFragment.ClickYear {
+        DatePickerFragment.Close, RecyclerViewDataAdapter.Open, SingleDocumentFragment.Mail, ProfileListFragment.ClickYear,MailCollection {
 
     public static final String PREF_USER_FIRST_TIME = "user_first_time";
     ArrayList<View> buttons;
@@ -94,16 +98,22 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.btn_logout) {
-            if (user != null) {
-                user.setLoggedIn(false);
-                saveUser(user, user.getEmail());
-                User _user = new User();
-                _user.setEmail(NONE);
-                _user.setLoggedIn(false);
-                saveUser(_user, CURRENT_USER);
-            }
+            Alert.show(this, "Logout!", "Do you really wanna logout?", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (user != null) {
+                    user.setLoggedIn(false);
+                    saveUser(user, user.getEmail());
+                    User _user = new User();
+                    _user.setEmail(NONE);
+                    _user.setLoggedIn(false);
+                    saveUser(_user, CURRENT_USER);
+                }
 
-            presentLoginScreen();
+                presentLoginScreen();
+            }
+        },null);
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -124,18 +134,21 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-                case R.id.imageButton:
-
-                    getFragmentManager().beginTransaction()
-                            .replace(R.id.fragment_container, TripListFragment.newInstance())
-                            .addToBackStack(TripListFragment.Tag).addToBackStack("trip").commit();
-
+                case R.id.imageButton: {
+//                    getFragmentManager().beginTransaction()
+//                            .replace(R.id.fragment_container, TripListFragment.newInstance())
+//                            .addToBackStack(TripListFragment.Tag).addToBackStack("trip").commit();
+                    Intent intent = new Intent(MainActivity.this, TripActivity.class);
+                    intent.putExtra("Email",user.getEmail());
+                    startActivity(intent);
+                }
                     break;
                 case R.id.imageButton1:
                     documentsManagerFragment = DocumentsManagerFragment.newInstance();
                     getFragmentManager().beginTransaction()
-                            .replace(R.id.fragment_container, documentsManagerFragment)
+                            .replace(R.id.fragment_container, documentsManagerFragment,DocumentsManagerFragment.Tag)
                             .addToBackStack(DocumentsManagerFragment.Tag).addToBackStack("document").commit();
+                    mainLayout.setVisibility(View.GONE);
                     break;
                 case R.id.imageButton2:
                     for (int i = 0;i<2;i++) {
@@ -146,30 +159,31 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
                         }
                         startActivity(intent);
                     }
-
+                    mainLayout.setVisibility(View.GONE);
                     break;
                 case R.id.imageButton3:
                     ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.SEND_SMS}, 1);
                     getFragmentManager().beginTransaction()
                             .replace(R.id.fragment_container, DatePickerFragment.newInstance(), DatePickerFragment.Tag)
                             .addToBackStack(DatePickerFragment.Tag).commit();
+                    mainLayout.setVisibility(View.GONE);
                     break;
                 case R.id.imageButton4:
                     getFragmentManager().beginTransaction()
                             .replace(R.id.fragment_container, ProfileListFragment.newInstance(user), ProfileListFragment.Tag)
                             .addToBackStack(ProfileListFragment.Tag).commit();
+                    mainLayout.setVisibility(View.GONE);
                     break;
                 case R.id.imageButton5:
                     getFragmentManager().beginTransaction()
                             .replace(R.id.fragment_container, FragmentAboutMe.newInstance(),FragmentAboutMe.Tag)
                             .addToBackStack(FragmentAboutMe.Tag).commit();
                     Log.i("TAG", "onClick: ");
+                    mainLayout.setVisibility(View.GONE);
                     break;
                 default:
                     break;
             }
-
-            mainLayout.setVisibility(View.GONE);
         }
     };
 
@@ -177,6 +191,7 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
     public void onBackPressed() {
         ProfileListFragment fragment = (ProfileListFragment) getFragmentManager().findFragmentByTag(ProfileListFragment.Tag);
         FragmentAboutMe fragmentAboutMe = (FragmentAboutMe) getFragmentManager().findFragmentByTag(FragmentAboutMe.Tag);
+
         if (fragment != null) {
             if (fragment.isYear.equals("goToSection")) {
                 fragment.setScrollGone();
@@ -204,6 +219,7 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
             getSupportActionBar().show();
         }
         mainLayout.setVisibility(View.VISIBLE);
+        setTitle("Main Menu");
     }
 
     private void saveUser(User user, String filename) {
@@ -309,13 +325,17 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
         if (fragment != null) {
             getFragmentManager().beginTransaction().remove(fragment).commit();
         }
-
     }
 
     @Override
-    public void openSingle(SingleDocument document,int position) {
+    public void openSingle(ArrayList<SingleDocument> document,int position) {
+        DocumentCollectionFragment fragment = (DocumentCollectionFragment) getFragmentManager().findFragmentByTag(DocumentCollectionFragment.Tag);
+        if (fragment != null) {
+            getFragmentManager().beginTransaction().remove(fragment).commit();
+        }
+
         getFragmentManager().beginTransaction()
-                .add(R.id.fragment_container, SingleDocumentFragment.newInstance(document,position), SingleDocumentFragment.Tag)
+                .add(R.id.fragment_container, SingleDocumentFragment.newInstance(document,position,user), SingleDocumentFragment.Tag)
                 .addToBackStack(SingleDocumentFragment.Tag).commit();
         mainLayout.setVisibility(View.GONE);
     }
@@ -323,14 +343,27 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
     @Override
     public void openMonth(DocumentsCollection collection,int position) {
         getFragmentManager().beginTransaction()
-                .add(R.id.fragment_container, DocumentCollectionFragment.newInstance(collection), DocumentCollectionFragment.Tag)
+                .add(R.id.fragment_container, DocumentCollectionFragment.newInstance(collection,user), DocumentCollectionFragment.Tag)
                 .addToBackStack(DocumentCollectionFragment.Tag).commit();
         mainLayout.setVisibility(View.GONE);
     }
 
     @Override
-    public void singleDocument(SingleDocument document,int position) {
+    public void singleDocument(ArrayList<SingleDocument> document, int position) {
         sendEmail();
+    }
+
+    @Override
+    public void exitSingle() {
+        SingleDocumentFragment fragment = (SingleDocumentFragment) getFragmentManager().findFragmentByTag(SingleDocumentFragment.Tag);
+        if (fragment != null) {
+            getFragmentManager().beginTransaction().remove(fragment).commit();
+        }
+
+        DocumentsManagerFragment fragment_ = (DocumentsManagerFragment) getFragmentManager().findFragmentByTag(DocumentsManagerFragment.Tag);
+        if (fragment_ != null) {
+            fragment_.setupData();
+        }
     }
 
     protected void sendEmail() {
@@ -343,6 +376,7 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
         emailIntent.setType("text/plain");
         emailIntent.putExtra(Intent.EXTRA_EMAIL, TO);
         emailIntent.putExtra(Intent.EXTRA_CC, CC);
+        emailIntent.putExtra(Intent.ACTION_ATTACH_DATA,"Hey");
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Your subject");
         emailIntent.putExtra(Intent.EXTRA_TEXT, "Email message goes here");
 
@@ -357,6 +391,24 @@ public class MainActivity extends AppCompatActivity implements LoginRegistration
     @Override
     public void selectedYear(ArrayList<Year> year, int position, String name) {
 
+    }
+
+    @Override
+    public void singleDocument(DocumentsCollection document, int position) {
+        sendEmail();
+    }
+
+    @Override
+    public void exitCollection() {
+        DocumentCollectionFragment fragment = (DocumentCollectionFragment) getFragmentManager().findFragmentByTag(DocumentCollectionFragment.Tag);
+        if (fragment != null) {
+            getFragmentManager().beginTransaction().remove(fragment).commit();
+        }
+
+        DocumentsManagerFragment fragment_ = (DocumentsManagerFragment) getFragmentManager().findFragmentByTag(DocumentsManagerFragment.Tag);
+        if (fragment_ != null) {
+            fragment_.setupData();
+        }
     }
 }
 

@@ -89,7 +89,12 @@ public class DocumentsManagerFragment extends Fragment implements GetImage {
                 }
                 Collections.sort(allSampleData, new DateComparatorDoc());
 
-                saveDocuments(addDocument.getUserDocuments().getEmail()+Tag,allSampleData);
+                DocumentsUtil.saveDocuments(addDocument.getUserDocuments().getEmail()+Tag,allSampleData,mContext);
+                if(allSampleData.size() == 0) {
+                    my_recycler_view.setVisibility(View.GONE);
+                } else {
+                    my_recycler_view.setVisibility(View.VISIBLE);
+                }
                 adapter.notifyDataSetChanged();
             }
         });
@@ -103,31 +108,7 @@ public class DocumentsManagerFragment extends Fragment implements GetImage {
         builder.show();
     }
 
-    private void saveDocuments(String filename, ArrayList<DocumentsCollection> document){
-        try {
-            FileOutputStream fos = mContext.openFileOutput(filename + ".bin", mContext.MODE_PRIVATE);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(document);
-            oos.close();
 
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private ArrayList<DocumentsCollection> loadDocuments(String filename){
-        ArrayList<DocumentsCollection> list = null;
-        try {
-            FileInputStream fis = mContext.openFileInput(filename + ".bin");
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            list = (ArrayList<DocumentsCollection>) ois.readObject();
-            ois.close();
-
-        } catch(IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
 
     public class DateComparator implements Comparator<SingleDocument> {
         public int compare(SingleDocument left, SingleDocument right) {
@@ -168,6 +149,7 @@ public class DocumentsManagerFragment extends Fragment implements GetImage {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         setHasOptionsMenu(true);
+        ((MainActivity) mContext).setTitle("Document Tracker");
         setupData();
     }
 
@@ -192,7 +174,7 @@ public class DocumentsManagerFragment extends Fragment implements GetImage {
     }
 
     void setupData() {
-        allSampleData = loadDocuments(addDocument.getUserDocuments().getEmail()+Tag);
+        allSampleData = DocumentsUtil.loadDocuments(addDocument.getUserDocuments().getEmail()+Tag,mContext);
         if (allSampleData == null) {
             allSampleData = new ArrayList<>();
         }
@@ -201,6 +183,12 @@ public class DocumentsManagerFragment extends Fragment implements GetImage {
         adapter = new RecyclerViewDataAdapter(mContext, allSampleData);
         my_recycler_view.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false));
         my_recycler_view.setAdapter(adapter);
+
+        if(allSampleData.size() == 0) {
+            my_recycler_view.setVisibility(View.GONE);
+        } else {
+            my_recycler_view.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override

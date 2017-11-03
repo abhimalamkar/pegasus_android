@@ -8,13 +8,13 @@ import java.util.Date;
 
 public class Trip implements Serializable {
 
-    String name;
-    Float[] start;
-    Float[] end;
-    Date date;
-    Float toll;
-    Float parking;
-    String[] locations;
+    public String name;
+    public Float[] start;
+    public Float[] end;
+    public Date date;
+    public Float toll;
+    public Float parking;
+    public String[] locations;
 
     public String[] getLocations() {
         return locations;

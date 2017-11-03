@@ -16,6 +16,8 @@
         android:paddingStart="16dp"
         android:layout_gravity="center"
         android:text = "dsada"
+        android:textSize="20dp"
+        android:textAlignment="center"
         android:textColor="#FFF"
         android:id="@+id/title_text"/>
 

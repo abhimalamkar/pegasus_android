@@ -1,4 +1,4 @@
-package com.abhijeetmalamkar.pegasus;
+package com.abhijeetmalamkar.pegasus.TripTracking;
 
 import android.app.Fragment;
 import android.content.Context;
@@ -8,42 +8,96 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.github.jjobes.slidedatetimepicker.SlideDateTimeListener;
-import com.github.jjobes.slidedatetimepicker.SlideDateTimePicker;
-import com.google.android.gms.maps.CameraUpdate;
+import com.abhijeetmalamkar.pegasus.R;
+import com.abhijeetmalamkar.pegasus.Trip;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 
 
-public class TripDetailsFragment extends Fragment {
+public class TripDetailsFragment extends Fragment implements OnMapReadyCallback {
 
-    Trip trip;
+    public Trip trip;
     static int position;
     Context mContext;
     ArrayList<Trip> trips;
     int i = 0;
+
+    MapView mapView;
+    GoogleMap map;
+
     public static String Tag = "TripDetailsFragment";
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        map = googleMap;
+        map.getUiSettings().setMyLocationButtonEnabled(false);
+//        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            // TODO: Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+//            return;
+//        }
+//        map.setMyLocationEnabled(true);
+       /*
+       //in old Api Needs to call MapsInitializer before doing any CameraUpdateFactory call
+        try {
+            MapsInitializer.initialize(this.getActivity());
+        } catch (GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+        }
+       */
+
+        // Updates the location and zoom of the MapView
+        /*CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(43.1, -87.9), 10);
+        map.animateCamera(cameraUpdate);*/
+        map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(trip.getStart()[0],trip.getStart()[1])));
+    }
+
+    @Override
+    public void onResume() {
+        mapView.onResume();
+        super.onResume();
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mapView.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mapView.onDestroy();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mapView.onLowMemory();
+    }
+
 
     public interface CloseFragment{
         void exit();
@@ -62,14 +116,16 @@ public class TripDetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
     }
+
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         view.findViewById(R.id.cancel_btn).setOnClickListener(cancelListener);
-
 
         view.findViewById(R.id.btn_trip).setOnClickListener(tripListner);
         view.findViewById(R.id.btn_notes).setOnClickListener(noteListner);
@@ -91,6 +147,14 @@ public class TripDetailsFragment extends Fragment {
         toll.addTextChangedListener(tollWatcher);
         parking.addTextChangedListener(parkingWatcher);
         note.addTextChangedListener(noteWatcher);
+
+
+
+        mapView = (MapView) view.findViewById(R.id.map_1);
+        mapView.onCreate(savedInstanceState);
+
+
+        mapView.getMapAsync(this);
 
     }
 

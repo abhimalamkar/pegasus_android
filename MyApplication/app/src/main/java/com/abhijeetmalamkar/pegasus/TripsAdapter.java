@@ -16,7 +16,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-class TripsAdapter extends BaseAdapter {
+public class TripsAdapter extends BaseAdapter {
 
     private static final int BASE_ID = 0x0A0B0CD;
     private final Context mContext;
@@ -25,13 +25,11 @@ class TripsAdapter extends BaseAdapter {
 
     // --Commented out by Inspection (6/9/17, 4:52 PM):private boolean isGrid = false;
     //Constructor
-    TripsAdapter(Context mContext, List<Trip> mList) {
+    public TripsAdapter(Context mContext, List<Trip> mList) {
         this.mContext = mContext;
 
         this.mList = mList;
     }
-
-
 
     @Override
     public int getCount() {
