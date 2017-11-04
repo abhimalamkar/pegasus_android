@@ -19,6 +19,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -26,6 +27,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.abhijeetmalamkar.pegasus.Alert;
 import com.abhijeetmalamkar.pegasus.GpsTracker;
 import com.abhijeetmalamkar.pegasus.R;
 import com.abhijeetmalamkar.pegasus.Trip;
@@ -51,6 +53,7 @@ public class TripActivity extends AppCompatActivity {
     Trip trip;
     int position;
     private String m_Text = "No Name";
+    Button button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +90,27 @@ public class TripActivity extends AppCompatActivity {
                 details.setVisibility(View.GONE);
             }
         });
+        button = (Button) findViewById(R.id.endButton);
+        button.setOnClickListener(endListner);
+        button.setVisibility(View.GONE);
     }
+
+    View.OnClickListener endListner = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            GpsTracker gt = new GpsTracker(TripActivity.this);
+            Location l = gt.getLocation();
+            Float[] points = {(float) l.getLatitude(), (float) l.getLongitude()};
+            trip.setEnd(points);
+            trip.setLocations(new String[]{getAddress(trip.getStart())
+                    , getAddress(trip.getEnd())});
+            trips.add(trip);
+            adapter.notifyDataSetChanged();
+            saveTrips(email + Tag, trips);
+            trip = null;
+            button.setVisibility(View.GONE);
+        }
+    };
 
     private TextWatcher tollWatcher = new TextWatcher() {
         @Override
@@ -214,14 +237,14 @@ public class TripActivity extends AppCompatActivity {
 //                double lon = l.getLongitude();
 //                Toast.makeText(mContext,"GPS Lat = "+lat+"\n lon = "+lon,Toast.LENGTH_SHORT).show();
 //            }
-
+            if(trip == null) {
             AlertDialog.Builder build = new AlertDialog.Builder(TripActivity.this);
-            build.setTitle(trip == null ? "Start a trip!" : "End the trip!");
-            build.setMessage(trip == null ? "Start a trip!" : "End the trip!");
-            build.setPositiveButton(trip == null ? "Start" : "End", new DialogInterface.OnClickListener() {
+            build.setTitle("Start a trip!" );
+            build.setMessage( "Start a trip!");
+            build.setPositiveButton( "Start" , new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    if(trip == null) {
+
 //                        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(mContext);
 //                        builder.setTitle("Title");
 //                        // Set up the input
@@ -258,27 +281,20 @@ public class TripActivity extends AppCompatActivity {
                             final Calendar c = Calendar.getInstance();
                             Float[] points = {(float) l.getLatitude(), (float) l.getLongitude()};
                             trip = new Trip(m_Text, points, null, c.getTime());
-
+                            button.setVisibility(View.VISIBLE);
                         }
                         else {
                             Toast.makeText(TripActivity.this,"No Location",Toast.LENGTH_SHORT).show();
                         }
-                    } else {
-                        GpsTracker gt = new GpsTracker(TripActivity.this);
-                        Location l = gt.getLocation();
-                        Float[] points = {(float) l.getLatitude(), (float) l.getLongitude()};
-                        trip.setEnd(points);
-                        trip.setLocations(new String[]{getAddress(trip.getStart())
-                                , getAddress(trip.getEnd())});
-                        trips.add(trip);
-                        adapter.notifyDataSetChanged();
-                        saveTrips(email + Tag, trips);
-                        trip = null;
-                    }
+
                 }
+
             });
-            build.setNegativeButton("Cancel", null);
+                  build.setNegativeButton("Cancel", null);
             build.show();
+            } else {
+                Alert.show(TripActivity.this,"Trip!","Already Started a trip please cancel it first.",null,null);
+            }
         }
         return super.onOptionsItemSelected(item);
     }
